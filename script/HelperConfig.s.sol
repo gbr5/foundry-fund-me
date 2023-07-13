@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.19;
 
 import {Script} from "forge-std/Script.sol";
 // import {MockV3Aggregator} from "@Chainlink/contracts/src/V0.8/tests/MockV3Aggregator.sol";
@@ -17,6 +17,8 @@ contract HelperConfig is Script {
     struct NetworkConfig {
         address priceFeed; // ETH/USE price feed address
     }
+
+    event HelperConfig__CreatedMockPriceFeed(address priceFeed);
 
     constructor() {
         if (block.chainid == 11155111) {
@@ -48,7 +50,10 @@ contract HelperConfig is Script {
         return ethConfig;
     }
 
-    function getAnvilEthConfig() public returns (NetworkConfig memory) {
+    function getAnvilEthConfig()
+        public
+        returns (NetworkConfig memory anvilNetworkConfig)
+    {
         // checks if mock v3 aggregator has already been called
         if (activeNetworkConfig.priceFeed != address(0)) {
             return activeNetworkConfig;
@@ -62,10 +67,8 @@ contract HelperConfig is Script {
         );
         vm.stopBroadcast();
 
-        NetworkConfig memory ethConfig = NetworkConfig({
-            priceFeed: address(mockPriceFeed)
-        });
+        emit HelperConfig__CreatedMockPriceFeed(address(mockPriceFeed));
 
-        return ethConfig;
+        anvilNetworkConfig = NetworkConfig({priceFeed: address(mockPriceFeed)});
     }
 }

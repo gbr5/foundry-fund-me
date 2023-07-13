@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.19;
 
 import {Test, console} from "forge-std/Test.sol";
-import {FundMe} from "../src/FundMe.sol";
-import {DeployFundMe} from "../script/DeployFundMe.s.sol";
+import {StdCheats} from "forge-std/StdCheats.sol";
+import {FundMe} from "../../src/FundMe.sol";
+import {DeployFundMe} from "../../script/DeployFundMe.s.sol";
+import {HelperConfig} from "../../script/HelperConfig.s.sol";
 
 // Types of testing:
 //
@@ -13,20 +15,22 @@ import {DeployFundMe} from "../script/DeployFundMe.s.sol";
 // 3. Forked: Testing our code in a simulated environment
 // 4. Staging: Testing our code in a real environment that is not prod (testnet or mainnet)
 
-contract FundMeTest is Test {
+contract FundMeTest is StdCheats, Test {
     FundMe public fundMe;
-    DeployFundMe public fundMeDeployer;
+    HelperConfig public helperConfig;
 
-    address USER = makeAddr("user");
+    // address USER = makeAddr("user");
     uint256 constant SEND_VALUE = 10e18;
     uint256 constant STARTING_VALUE = 10 ether;
     uint256 constant GAS_PRICE = 1;
     address ownerAddress;
     address fundMeAddress;
 
+    address public constant USER = address(1);
+
     function setUp() external {
-        fundMeDeployer = new DeployFundMe();
-        fundMe = fundMeDeployer.run();
+        DeployFundMe fundMeDeployer = new DeployFundMe();
+        (fundMe, ) = fundMeDeployer.run();
         vm.deal(USER, STARTING_VALUE);
         ownerAddress = fundMe.getOwner();
         fundMeAddress = address(fundMe);
